@@ -1,0 +1,121 @@
+{
+  "unzip": {
+    "file": "DATASET.zip",
+    "destination": "/content/DATASET"
+  },
+  "data_generator": {
+    "normalization": {
+      "rescale": 1.0
+    },
+    "image_augmentation": {
+      "rotation_range": 20,
+      "width_shift_range": 0.2,
+      "height_shift_range": 0.2,
+      "shear_range": 0.2,
+      "zoom_range": 0.2,
+      "horizontal_flip": true,
+      "fill_mode": "nearest"
+    },
+    "flow_from_directory": {
+      "dataset_path": "/content/DATASET",
+      "target_size": [200, 200],
+      "color_mode": "grayscale",
+      "batch_size": 32,
+      "class_mode": "categorical"
+    }
+  },
+  "model": {
+    "type": "Sequential",
+    "layers": [
+      {
+        "class_name": "Conv2D",
+        "config": {
+          "filters": 32,
+          "kernel_size": [3, 3],
+          "activation": "relu",
+          "input_shape": [200, 200, 1]
+        }
+      },
+      {
+        "class_name": "MaxPool2D",
+        "config": {
+          "pool_size": [2, 2]
+        }
+      },
+      {
+        "class_name": "Conv2D",
+        "config": {
+          "filters": 32,
+          "kernel_size": [3, 3],
+          "activation": "relu"
+        }
+      },
+      {
+        "class_name": "MaxPool2D",
+        "config": {
+          "pool_size": [2, 2]
+        }
+      },
+      {
+        "class_name": "Conv2D",
+        "config": {
+          "filters": 64,
+          "kernel_size": [3, 3],
+          "activation": "relu"
+        }
+      },
+      {
+        "class_name": "MaxPool2D",
+        "config": {
+          "pool_size": [2, 2]
+        }
+      },
+      {
+        "class_name": "Flatten",
+        "config": {}
+      },
+      {
+        "class_name": "Dense",
+        "config": {
+          "units": 512,
+          "activation": "relu"
+        }
+      },
+      {
+        "class_name": "Dense",
+        "config": {
+          "units": "train_generator.num_classes",
+          "activation": "softmax"
+        }
+      }
+    ],
+    "compile": {
+      "optimizer": "rmsprop",
+      "loss": "categorical_crossentropy",
+      "metrics": [
+        "accuracy",
+        {"name": "precision"},
+        {"name": "recall"}
+      ]
+    },
+    "fit": {
+      "steps_per_epoch": "train_generator.samples // train_generator.batch_size",
+      "epochs": 10
+    }
+  },
+  "preprocess_images": {
+    "function": "remove_white_border",
+    "image_processing": {
+      "to_grayscale": true,
+      "threshold": 240,
+      "contour_method": "cv2.findContours",
+      "crop": true
+    }
+  },
+  "predictions": {
+    "num_images_to_predict": 100,
+    "predicted_labels": [],
+    "actual_labels": [],
+    "filenames": []
+  }
+}
